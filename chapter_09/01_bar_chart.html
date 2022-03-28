@@ -11,6 +11,7 @@
 </head>
 
 <body>
+	<p>Click this text to update the chart with new data</p>
 	<script type="text/javascript">
 		//Width and height
 		var w = 600;
@@ -73,6 +74,84 @@
 			.attr("font-family", "sans-serif")
 			.attr("font-size", "11px")
 			.attr("fill", "white");
+
+		// listener event (for clicks on the paragraph)
+		d3.select("p")
+			.on("click", function () {
+
+				//New values for dataset
+				var maxYValue = 50;
+
+				var numValues = dataset.length;
+				dataset = [];
+
+				for (var i = 0; i < numValues; i++) {
+					var newNumber = Math.floor(Math.random() * maxYValue);
+					dataset.push(newNumber);
+				}
+
+				// update y scale
+				yScale.domain([0, d3.max(dataset)]);
+
+				// rebind new dataset
+				svg.selectAll("rect")
+					.data(dataset);
+
+				// redraw rectangles
+				svg.selectAll("rect")
+					.data(dataset)
+					.transition()
+					.delay(function (d, i) {
+						return i * 100;
+					})
+					.duration(500)
+					.attr("y", function (d) {
+						return h - yScale(d);
+					})
+					.attr("height", function (d) {
+						return yScale(d);
+					})
+					.attr("fill", function (d) {
+						return "rgb(0, 0, " + Math.round(d * 10) + ")";
+					})
+
+				// redraw text
+
+				var text_switch = Math.floor(maxYValue / 10);
+
+				svg.selectAll("text")
+					.data(dataset)
+					.transition()
+					.delay(function (d, i) {
+						return i * 100;
+					})
+					.duration(500)
+					.text(function (d) {
+						return d;
+					})
+					.attr("x", function (d, i) {
+						return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
+					})
+					.attr("y", function (d) {
+
+						if (d > text_switch) {
+							return h - yScale(d) + 14;
+						}
+
+						else{
+							return h - yScale(d) - 10;;
+						}
+					})
+					.attr("fill", function(d){
+						if (d > text_switch) {
+							return "white";
+						}
+
+						else{
+							return "black";
+						}
+					});
+			});
 	</script>
 </body>
 
